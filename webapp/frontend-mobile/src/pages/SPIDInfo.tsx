@@ -20,7 +20,7 @@ const SPIDInfo = () => {
 
     const handleSpidLogin = (providerName: string) => {
         // Redirect directly to provider login for mobile (patient)
-        window.location.href = `${API_URL}/provider-login?provider=${providerName}&frontendUrl=${FRONTEND_URL}&userType=patient`;
+        window.location.href = `${API_URL}/spid-auth/provider-login?provider=${providerName}&frontendUrl=${FRONTEND_URL}&userType=patient`;
     };
 
     useEffect(() => {
