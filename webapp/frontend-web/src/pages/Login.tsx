@@ -1,8 +1,8 @@
-
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { login, getUserRole } from '../services/auth.service';
 import { Eye, EyeOff, Edit2, UserRound } from 'lucide-react';
+import { API_URL, FRONTEND_URL } from '../config';
 import '../css/Login.css'; // We'll create this CSS file
 
 const Login = () => {
@@ -45,7 +45,7 @@ const Login = () => {
 
     const handleSpidLogin = (providerName: string) => {
         // Redirect directly to provider login
-        window.location.href = `http://localhost:3000/spid-auth/provider-login?provider=${providerName}&frontendUrl=http://localhost:5174&userType=psychologist`;
+        window.location.href = `${API_URL}/spid-auth/provider-login?provider=${providerName}&frontendUrl=${FRONTEND_URL}&userType=psychologist`;
     };
 
     return (

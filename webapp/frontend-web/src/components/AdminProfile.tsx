@@ -7,6 +7,7 @@ import { getCurrentUser, logout } from '../services/auth.service';
 import { fetchAdminNotificationCount } from '../services/notification.service';
 import profilePhoto from '../images/psychologist-photo.png';
 import notificationIcon from '../images/psi-notification.png';
+import { API_URL } from '../config';
 import '../css/PsychologistProfile.css';
 import '../css/ClinicalAlerts.css'; // For confirmation overlay styles
 
@@ -82,7 +83,7 @@ const AdminProfile: React.FC<AdminProfileProps> = ({ onSelectSection, activeSect
             if (user && user.email) {
                 try {
                     const token = user.access_token;
-                    const response = await fetch(`http://localhost:3000/admin/dashboard/me?email=${encodeURIComponent(user.email)}`, {
+                    const response = await fetch(`${API_URL}/admin/dashboard/me?email=${encodeURIComponent(user.email)}`, {
                         headers: {
                             ...(token ? { Authorization: `Bearer ${token}` } : {}),
                             'Content-Type': 'application/json',

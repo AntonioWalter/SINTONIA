@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import { Ticket, FileText, Check, Send } from 'lucide-react';
 import type { TechnicalSupportTicket } from '../types/technicalSupport';
 import Toast from './Toast';
+import { API_URL } from '../config';
 import '../css/Modal.css';
 
 interface TechnicalSupportDetailModalProps {
@@ -28,7 +29,7 @@ const TechnicalSupportDetailModal: React.FC<TechnicalSupportDetailModalProps> = 
             const user = userStr ? JSON.parse(userStr) : null;
             const token = user?.access_token;
 
-            const response = await fetch('http://localhost:3000/admin/support-request/reply', {
+            const response = await fetch(`${API_URL}/admin/support-request/reply`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -63,7 +64,7 @@ const TechnicalSupportDetailModal: React.FC<TechnicalSupportDetailModalProps> = 
             const user = userStr ? JSON.parse(userStr) : null;
             const token = user?.access_token;
 
-            const response = await fetch('http://localhost:3000/admin/support-request/close', {
+            const response = await fetch(`${API_URL}/admin/support-request/close`, {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',

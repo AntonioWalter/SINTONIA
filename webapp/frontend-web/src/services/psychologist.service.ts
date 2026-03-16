@@ -6,7 +6,7 @@
 import type { Psychologist, QuestionnaireData, PsychologistDashboardData } from '../types/psychologist';
 import { getCurrentUser } from './auth.service';
 
-const API_URL = 'http://localhost:3000';
+import { API_URL } from '../config';
 
 /**
  * Fetch dashboard data from backend API

@@ -1,4 +1,5 @@
 import { Module } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
 import { AppController } from './app.controller.js';
 import { AppService } from './app.service.js';
 import { AuthModule } from './auth/auth.module.js';
@@ -15,7 +16,7 @@ import { AdminNotificheModule } from './amministratore/notifiche/notifiche.modul
 import { NotificationsModule } from './notifications/notifications.module.js';
 
 @Module({
-  imports: [NotificationsModule, AuthModule, DashboardModule, SpidAuthModule, PatientModule, PsiModule, Questionari_amministratoreModule, Pazienti_amministratoreModule, Psicologi_amministratoreModule, AdminSupportModule, InvalidazioneModule, AdminNotificheModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), NotificationsModule, AuthModule, DashboardModule, SpidAuthModule, PatientModule, PsiModule, Questionari_amministratoreModule, Pazienti_amministratoreModule, Psicologi_amministratoreModule, AdminSupportModule, InvalidazioneModule, AdminNotificheModule],
   controllers: [AppController],
   providers: [AppService],
 })

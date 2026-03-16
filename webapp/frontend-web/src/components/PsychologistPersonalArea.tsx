@@ -4,6 +4,7 @@ import profilePhoto from '../images/psychologist-photo.png';
 import '../css/PsychologistPersonalArea.css';
 import { getProfile, updateProfile } from '../services/psychologist.service';
 import { getCurrentUser } from '../services/auth.service';
+import { API_URL } from '../config';
 import type { OutletContextType } from './AppLayout';
 
 import Toast from './Toast';
@@ -97,7 +98,7 @@ const PsychologistPersonalArea: React.FC = () => {
                             imageUrl = data.immagineProfilo;
                         } else {
                             // Legacy: filename - serve from uploads
-                            imageUrl = `http://localhost:3000/uploads/${data.immagineProfilo}`;
+                            imageUrl = `${API_URL}/uploads/${data.immagineProfilo}`;
                         }
                     }
 

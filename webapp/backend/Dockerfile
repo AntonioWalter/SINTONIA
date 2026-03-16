@@ -2,14 +2,17 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Copiamo i file dei pacchetti
 COPY package*.json ./
 
-RUN npm install
+# Installiamo le dipendenze
+RUN npm install --only=production
 
-COPY . .
+# Copiamo la cartella dist (che contiene la sottocartella src)
+COPY dist ./dist
 
-RUN npm run build
-
+# Espone la porta
 EXPOSE 3000
 
-CMD ["npm", "run", "start:prod"]
+# IL COMANDO CORRETTO: punta alla sottocartella src
+CMD ["node", "dist/src/main"]

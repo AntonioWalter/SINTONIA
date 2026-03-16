@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { PatientData } from '../types/patient';
 import { getCurrentUser } from './auth.service';
 
-const API_URL = 'http://localhost:3000';
+import { API_URL } from '../config';
 
 /**
  * Fetch all patients (admin only)

@@ -1,8 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { logout, getCurrentUser } from '../services/auth.service';
+import { logout } from '../services/auth.service';
 import profilePhoto from '../images/psychologist-photo.png';
+import { API_URL } from '../config';
 import '../css/MobileDrawerMenu.css';
 
 // SVG Icons
@@ -108,7 +109,7 @@ const MobileDrawerMenu: React.FC<MobileDrawerMenuProps> = ({
     const imgSrc = profileImageUrl
         ? profileImageUrl.startsWith('data:') || profileImageUrl.startsWith('http')
             ? profileImageUrl
-            : `http://localhost:3000/uploads/${profileImageUrl}`
+            : `${API_URL}/uploads/${profileImageUrl}`
         : profilePhoto;
 
     if (!isOpen && !showLogoutConfirm) return null;

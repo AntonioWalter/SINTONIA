@@ -18,6 +18,8 @@ const ViewIcon = () => (
 
 type StatusFilter = 'all' | 'open' | 'closed';
 
+import { API_URL } from '../config';
+
 const AdminTechnicalSupport: React.FC = () => {
     const [tickets, setTickets] = useState<TechnicalSupportTicket[]>([]);
     const [selectedTicket, setSelectedTicket] = useState<TechnicalSupportTicket | null>(null);
@@ -42,7 +44,7 @@ const AdminTechnicalSupport: React.FC = () => {
                 return;
             }
 
-            const response = await fetch('http://localhost:3000/admin/support-request', {
+            const response = await fetch(`${API_URL}/admin/support-request`, {
                 headers: {
                     'Authorization': `Bearer ${token}`
                 }

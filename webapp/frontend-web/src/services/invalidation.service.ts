@@ -2,7 +2,7 @@ import axios from 'axios';
 import type { InvalidationRequestData } from '../types/invalidation';
 import { getCurrentUser } from './auth.service';
 
-const API_URL = 'http://localhost:3000';
+import { API_URL } from '../config';
 
 /**
  * Fetch all invalidation requests (admin only)
