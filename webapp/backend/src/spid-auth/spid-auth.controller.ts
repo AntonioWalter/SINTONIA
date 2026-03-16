@@ -10,9 +10,17 @@ export class SpidAuthController {
     private readonly configService: ConfigService,
   ) { }
 
+  private sanitizeFrontendUrl(urlIndex: string | undefined): string {
+    const fallback = this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5174';
+    if (!urlIndex || urlIndex === 'undefined' || urlIndex === 'null' || urlIndex.trim() === '') {
+      return fallback;
+    }
+    return urlIndex;
+  }
+
   @Get('login')
   async login(@Query('frontendUrl') frontendUrl: string, @Query('userType') userType: string, @Res() res: Response) {
-    const targetFrontendUrl = frontendUrl || this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5174';
+    const targetFrontendUrl = this.sanitizeFrontendUrl(frontendUrl);
     const targetUserType = userType || 'patient';
 
     // Replica esatta della pagina di scelta provider SPID
@@ -174,7 +182,7 @@ export class SpidAuthController {
   @Get('provider-login')
   async providerLogin(@Query('provider') provider: string, @Query('frontendUrl') frontendUrl: string, @Query('userType') userType: string, @Res() res: Response) {
     const providerName = provider || 'Provider';
-    const targetFrontendUrl = frontendUrl || this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5174';
+    const targetFrontendUrl = this.sanitizeFrontendUrl(frontendUrl);
     const targetUserType = userType || 'patient';
 
     // Authentic SPID login page matching Poste Italiane design with QR code
@@ -727,7 +735,7 @@ export class SpidAuthController {
 
   @Post('callback')
   async callback(@Body() body: any, @Res() res: Response) {
-    const frontendUrl = body.frontendUrl || this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5174';
+    const frontendUrl = this.sanitizeFrontendUrl(body.frontendUrl);
     const userType = body.userType || 'patient';
     const email = body.email;
     const password = body.password;
@@ -1013,7 +1021,7 @@ export class SpidAuthController {
 
   @Post('consent-confirm')
   async consentConfirm(@Body() body: any, @Res() res: Response) {
-    const frontendUrl = body.frontendUrl || this.configService.get<string>('FRONTEND_URL') || 'http://localhost:5174';
+    const frontendUrl = this.sanitizeFrontendUrl(body.frontendUrl);
     const userType = body.userType || 'patient';
     const codFiscale = body.codFiscale;
     const consent = body.consent;
