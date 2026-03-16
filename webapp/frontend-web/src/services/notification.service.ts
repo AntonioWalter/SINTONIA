@@ -1,5 +1,5 @@
 import { getCurrentUser } from './auth.service';
-import type { Notification, NotificationCount, PaginatedNotifications } from '../types/notification';
+import type { NotificationCount, PaginatedNotifications } from '../types/notification';
 
 import { API_URL as API_BASE_URL } from '../config';
 

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
 import { useNavigate } from 'react-router-dom';
-import { logout, getCurrentUser } from '../services/auth.service';
+import { logout } from '../services/auth.service';
 import profilePhoto from '../images/psychologist-photo.png';
 import { API_URL } from '../config';
 import '../css/MobileDrawerMenu.css';
