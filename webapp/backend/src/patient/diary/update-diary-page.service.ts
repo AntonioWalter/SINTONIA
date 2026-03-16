@@ -1,12 +1,19 @@
-import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
+import { Injectable, BadRequestException, NotFoundException, Logger } from '@nestjs/common';
 import { DiaryPageDto } from './dto/diary-page.dto.js';
 import { UpdateDiaryPageDto } from './dto/update-diary-page.dto.js';
 import { db } from '../../drizzle/db.js';
-import { paginaDiario } from '../../drizzle/schema.js';
+import { paginaDiario, alertClinico } from '../../drizzle/schema.js';
 import { eq, and } from 'drizzle-orm';
+import { AiService } from '../../ai/ai.service.js'; // <-- Importa il servizio IA
 
 @Injectable()
 export class UpdateDiaryPageService {
+    // Aggiungiamo il logger per la console
+    private readonly logger = new Logger(UpdateDiaryPageService.name);
+
+    // Iniettiamo l'AiService nel costruttore
+    constructor(private readonly aiService: AiService) {}
+
     /**
      * Update an existing diary page for a patient
      * @param patientId - The UUID of the patient
@@ -59,11 +66,45 @@ export class UpdateDiaryPageService {
             throw new BadRequestException('Impossibile aggiornare la pagina del diario');
         }
 
+        // --- ANALISI NLP IN BACKGROUND (Red Flag Detection sull'Update) ---
+        // Fire-and-forget: controlliamo il nuovo testo senza bloccare la risposta al frontend
+        this.analyzeRiskAndAlert(patientId, dto.content.trim()).catch(err => {
+            this.logger.error('Errore irreversibile durante l\'analisi NLP in fase di UPDATE', err);
+        });
+
         return {
             id: updatedPage.id,
             title: updatedPage.title,
             content: updatedPage.content,
             createdAt: updatedPage.createdAt || new Date(),
         };
+    }
+
+    /**
+     * Funzione privata asincrona per analizzare il testo tramite IA e generare l'allarme
+     */
+    private async analyzeRiskAndAlert(patientId: string, testo: string) {
+        this.logger.log(`Inviando la pagina di diario modificata del paziente ${patientId} a SINTON-IA...`);
+        
+        try {
+            // Chiamata all'API Python su Hugging Face
+            const aiResponse = await this.aiService.predict('red-flag', { testo });
+
+            if (aiResponse && aiResponse.risk_detected) {
+                this.logger.warn(`🚨 RED FLAG RILEVATA nell'aggiornamento per il paziente ${patientId}! Generazione alert in corso...`);
+
+                // Inseriamo il record critico nella tabella alert_clinico.
+                await db.insert(alertClinico).values({
+                    idPaziente: patientId,
+                    accettato: false
+                });
+
+                this.logger.log(`Alert Clinico globale salvato nel database per il Triage.`);
+            } else {
+                this.logger.log(`Nessuna anomalia rilevata nel diario aggiornato del paziente ${patientId}.`);
+            }
+        } catch (error: any) {
+             this.logger.error(`Errore di comunicazione con il modello NLP: ${error.message}`);
+        }
     }
 }
