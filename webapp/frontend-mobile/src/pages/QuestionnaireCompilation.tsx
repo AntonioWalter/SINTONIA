@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { API_URL } from '../config';
 import LeftArrowIcon from '../assets/icons/LeftArrow.svg';
 import QuestionCard from '../components/QuestionCard.tsx';
 import QuestionScale from '../components/QuestionScale.tsx';
@@ -67,7 +68,7 @@ const QuestionnaireCompilation: React.FC = () => {
 
                 // Submit to backend - it will calculate score and save
                 const token = localStorage.getItem('patient_token');
-                const response = await fetch('http://localhost:3000/paziente/questionario/submit', {
+                const response = await fetch(`${API_URL}/paziente/questionario/submit`, {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json',

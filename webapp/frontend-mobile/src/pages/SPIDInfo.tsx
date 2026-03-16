@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import '../css/SPIDInfo.css';
+import { API_URL, FRONTEND_URL } from '../config';
 
 const SPIDInfo = () => {
     const [fadeIn, setFadeIn] = useState(false);
@@ -19,7 +20,7 @@ const SPIDInfo = () => {
 
     const handleSpidLogin = (providerName: string) => {
         // Redirect directly to provider login for mobile (patient)
-        window.location.href = `http://localhost:3000/spid-auth/provider-login?provider=${providerName}&frontendUrl=http://localhost:5173&userType=patient`;
+        window.location.href = `${API_URL}/provider-login?provider=${providerName}&frontendUrl=${FRONTEND_URL}&userType=patient`;
     };
 
     useEffect(() => {

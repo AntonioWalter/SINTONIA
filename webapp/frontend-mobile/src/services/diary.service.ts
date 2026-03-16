@@ -1,9 +1,10 @@
 import axios from 'axios';
 import type { DiaryPage, CreateDiaryPageDto, UpdateDiaryPageDto } from '../types/diary';
+import { API_URL as BASE_API_URL } from '../config';
 
 // Toggle per passare da mock a API reale
 const USE_MOCK_DATA = false;
-const API_URL = 'http://localhost:3000/paziente/diario';
+const API_URL = `${BASE_API_URL}/paziente/diario`;
 
 // Mock data - simulazione di pagine di diario
 const mockDiaryPages: DiaryPage[] = [

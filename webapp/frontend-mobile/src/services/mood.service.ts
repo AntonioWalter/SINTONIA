@@ -2,9 +2,8 @@
  * Service per la gestione delle chiamate API relative allo stato d'animo
  */
 
+import { API_URL as API_BASE_URL } from '../config';
 import type { CreateMoodDto, MoodResponse } from '../types/mood';
-
-const API_BASE_URL = 'http://localhost:3000';
 
 /**
  * Crea un nuovo stato d'animo per il paziente autenticato

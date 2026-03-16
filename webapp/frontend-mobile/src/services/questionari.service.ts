@@ -1,6 +1,5 @@
 import type { StoricoQuestionariDto } from '../types/questionari';
-
-const API_BASE_URL = 'http://localhost:3000';
+import { API_URL as API_BASE_URL } from '../config';
 
 /**
  * Fetch patient questionnaire history (pending and completed)

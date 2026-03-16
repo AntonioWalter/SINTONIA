@@ -3,7 +3,10 @@
  * Endpoint: GET /paziente/area-personale
  */
 
+import { API_URL as BASE_API_URL } from '../config';
 import type { ProfileDto } from '../types/profile';
+
+const API_URL = `${BASE_API_URL}/paziente/area-personale`;
 
 /**
  * Recupera tutti i dati dell'area personale del paziente autenticato
@@ -20,7 +23,7 @@ export const getProfileData = async (): Promise<ProfileDto> => {
             throw new Error('Missing auth token. Redirecting to login...');
         }
 
-        const response = await fetch('http://localhost:3000/paziente/area-personale', {
+        const response = await fetch(API_URL, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },

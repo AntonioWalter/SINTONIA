@@ -1,6 +1,5 @@
+import { API_URL as API_BASE_URL } from '../config';
 import type { GetQuestionarioDto, SubmitQuestionarioDto, QuestionarioResultDto, Risposta } from '../types/questionario';
-
-const API_BASE_URL = 'http://localhost:3000';
 
 /**
  * Fetch questionnaire data by ID

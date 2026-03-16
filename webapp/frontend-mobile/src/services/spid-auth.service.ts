@@ -1,4 +1,6 @@
-const API_URL = 'http://localhost:3000/spid-auth';
+import { API_URL as BASE_API_URL } from '../config';
+
+const API_URL = `${BASE_API_URL}/spid-auth`;
 
 export const startSPIDLogin = () => {
     // Redirect to backend SPID login endpoint

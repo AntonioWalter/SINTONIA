@@ -2,9 +2,8 @@
  * Service per la gestione delle impostazioni del paziente
  */
 
+import { API_URL as API_BASE_URL } from '../config';
 import type { PersonalInfoDto, SupportRequestDto, SupportRequestResponse } from '../types/settings';
-
-const API_BASE_URL = 'http://localhost:3000';
 
 /**
  * Recupera le informazioni personali del paziente autenticato

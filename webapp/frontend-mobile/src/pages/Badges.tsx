@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { API_URL } from '../config';
 import { useNavigate } from 'react-router-dom';
 import LeftArrow from '../assets/icons/LeftArrow.svg';
 import '../css/Badges.css';
@@ -63,7 +64,7 @@ const Badges: React.FC = () => {
                     return;
                 }
 
-                const response = await fetch('http://localhost:3000/paziente/badge/lista', {
+                const response = await fetch(`${API_URL}/paziente/badge/lista`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },

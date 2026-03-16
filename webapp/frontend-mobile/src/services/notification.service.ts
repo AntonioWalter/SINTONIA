@@ -1,3 +1,7 @@
+import { API_URL as BASE_API_URL } from '../config';
+
+const API_URL = `${BASE_API_URL}/paziente/notifiche`;
+
 // Notification types matching backend
 export interface NotificationDto {
     idNotifica: string;
@@ -20,8 +24,6 @@ export interface PaginatedNotificationsDto {
 export interface NotificationCountDto {
     count: number;
 }
-
-const API_URL = 'http://localhost:3000/paziente/notifiche';
 
 const getAuthHeaders = () => {
     const token = localStorage.getItem('patient_token');

@@ -1,3 +1,4 @@
+import { API_URL } from '../config';
 import type { HomeDashboardDto } from '../types/home';
 
 export const getHomeDashboard = async (): Promise<HomeDashboardDto> => {
@@ -9,7 +10,7 @@ export const getHomeDashboard = async (): Promise<HomeDashboardDto> => {
             throw new Error('Missing auth token. Redirecting to login...');
         }
 
-        const response = await fetch('http://localhost:3000/paziente/home', {
+        const response = await fetch(`${API_URL}/paziente/home`, {
             headers: {
                 Authorization: `Bearer ${token}`,
             },

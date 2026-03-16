@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import axios from 'axios';
+import { API_URL } from '../config';
 import { updateLocalTerms } from '../services/spid-auth.service';
 import '../css/Terms.css';
 
@@ -13,7 +14,7 @@ const Terms = () => {
         setLoading(true);
         try {
             const token = localStorage.getItem('patient_token');
-            const response = await axios.post('http://localhost:3000/patient/terms', {}, {
+            const response = await axios.post(`${API_URL}/patient/terms`, {}, {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
