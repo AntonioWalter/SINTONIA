@@ -1,14 +1,18 @@
 import { Controller, Get, Post, Query, Res, Body } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import type { Response } from 'express';
 import { SpidAuthService } from './spid-auth.service.js';
 
 @Controller('spid-auth')
 export class SpidAuthController {
-  constructor(private readonly spidAuthService: SpidAuthService) { }
+  constructor(
+    private readonly spidAuthService: SpidAuthService,
+    private readonly configService: ConfigService,
+  ) { }
 
   @Get('login')
   async login(@Query('frontendUrl') frontendUrl: string, @Query('userType') userType: string, @Res() res: Response) {
-    const targetFrontendUrl = frontendUrl || 'http://localhost:5173';
+    const targetFrontendUrl = frontendUrl || this.configService.get<string>('FRONTEND_URL');
     const targetUserType = userType || 'patient';
 
     // Replica esatta della pagina di scelta provider SPID
@@ -170,7 +174,7 @@ export class SpidAuthController {
   @Get('provider-login')
   async providerLogin(@Query('provider') provider: string, @Query('frontendUrl') frontendUrl: string, @Query('userType') userType: string, @Res() res: Response) {
     const providerName = provider || 'Provider';
-    const targetFrontendUrl = frontendUrl || 'http://localhost:5173';
+    const targetFrontendUrl = frontendUrl || this.configService.get<string>('FRONTEND_URL');
     const targetUserType = userType || 'patient';
 
     // Authentic SPID login page matching Poste Italiane design with QR code
@@ -723,7 +727,7 @@ export class SpidAuthController {
 
   @Post('callback')
   async callback(@Body() body: any, @Res() res: Response) {
-    const frontendUrl = body.frontendUrl || 'http://localhost:5173';
+    const frontendUrl = body.frontendUrl || this.configService.get<string>('FRONTEND_URL');
     const userType = body.userType || 'patient';
     const email = body.email;
     const password = body.password;
@@ -1009,7 +1013,7 @@ export class SpidAuthController {
 
   @Post('consent-confirm')
   async consentConfirm(@Body() body: any, @Res() res: Response) {
-    const frontendUrl = body.frontendUrl || 'http://localhost:5173';
+    const frontendUrl = body.frontendUrl || this.configService.get<string>('FRONTEND_URL');
     const userType = body.userType || 'patient';
     const codFiscale = body.codFiscale;
     const consent = body.consent;

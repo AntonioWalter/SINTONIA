@@ -9,6 +9,7 @@ import { getCurrentUser, logout } from '../services/auth.service';
 import type { PsychologistDashboardData, LoadingState } from '../types/psychologist';
 import profilePhoto from '../images/psychologist-photo.png';
 import notificationIcon from '../images/psi-notification.png';
+import { API_URL } from '../config';
 import '../css/PsychologistProfile.css';
 import '../css/ClinicalAlerts.css'; // For confirmation overlay styles
 
@@ -205,7 +206,7 @@ const PsychologistProfile: React.FC<PsychologistProfileProps> = ({ onSelectSecti
                                 profileImageUrl
                                     ? profileImageUrl.startsWith('data:') || profileImageUrl.startsWith('http')
                                         ? profileImageUrl
-                                        : `http://localhost:3000/uploads/${profileImageUrl}`
+                                        : `${API_URL}/uploads/${profileImageUrl}`
                                     : profilePhoto
                             }
                             alt={fullName}

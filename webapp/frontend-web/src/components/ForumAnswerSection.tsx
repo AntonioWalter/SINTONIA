@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import type { ForumAnswer } from '../types/forum';
 import { Pencil, Trash2 } from 'lucide-react';
+import { API_URL } from '../config';
 import '../css/ForumAnswerSection.css';
 
 interface ForumAnswerSectionProps {
@@ -43,7 +44,7 @@ const ForumAnswerSection: React.FC<ForumAnswerSectionProps> = ({
             if (answer.immagineProfilo.startsWith('data:image')) {
                 return answer.immagineProfilo;
             }
-            return `http://localhost:3000${answer.immagineProfilo}`;
+            return `${API_URL}${answer.immagineProfilo}`;
         }
         return null;
     };

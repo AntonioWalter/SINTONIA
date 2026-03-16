@@ -5,6 +5,7 @@ import AdminProfile from './AdminProfile';
 import MobileDrawerMenu from './MobileDrawerMenu';
 import { getCurrentUser } from '../services/auth.service';
 import { fetchDashboardData } from '../services/psychologist.service';
+import { API_URL } from '../config';
 import '../css/AppLayout.css';
 
 interface AppLayoutProps {
@@ -61,7 +62,7 @@ const AppLayout: React.FC<AppLayoutProps> = ({ role }) => {
             } else {
                 try {
                     const token = user.access_token;
-                    const response = await fetch(`http://localhost:3000/admin/dashboard/me?email=${encodeURIComponent(user.email)}`, {
+                    const response = await fetch(`${API_URL}/admin/dashboard/me?email=${encodeURIComponent(user.email)}`, {
                         headers: {
                             ...(token ? { Authorization: `Bearer ${token}` } : {}),
                             'Content-Type': 'application/json',
