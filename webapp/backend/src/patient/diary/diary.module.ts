@@ -8,9 +8,13 @@ import { UpdateDiaryPageService } from './update-diary-page.service.js';
 import { DeleteDiaryPageController } from './delete-diary-page.controller.js';
 import { DeleteDiaryPageService } from './delete-diary-page.service.js';
 import { BadgeModule } from '../badge/badge.module.js';
+import { AiModule } from '../../ai/ai.module.js'; 
 
 @Module({
-    imports: [BadgeModule],
+    imports: [
+        BadgeModule,
+        AiModule 
+    ],
     controllers: [
         DiaryController,
         CreateDiaryPageController,
