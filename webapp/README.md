@@ -97,8 +97,8 @@ Una volta completato il setup, i servizi saranno disponibili a:
 | Servizio | URL | Descrizione |
 |----------|-----|-------------|
 | **Backend API** | http://localhost:3000 | API REST NestJS |
-| **Frontend Web** | http://localhost:5173 | Dashboard Admin/Psicologo |
-| **Frontend Mobile** | http://localhost:5174 | Interfaccia Pazienti |
+| **Frontend Web** | http://localhost:5174 | Dashboard Admin/Psicologo |
+| **Frontend Mobile** | http://localhost:5173 | Interfaccia Pazienti |
 | **Database PostgreSQL** | localhost:5433 | Porta esposta |
 
 ---
