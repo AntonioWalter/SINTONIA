@@ -14,9 +14,10 @@ import { Psicologi_amministratoreModule } from './amministratore/psicologi/psico
 import { AdminSupportModule } from './amministratore/support-request/admin-support.module.js';
 import { AdminNotificheModule } from './amministratore/notifiche/notifiche.module.js';
 import { NotificationsModule } from './notifications/notifications.module.js';
+import { AiModule } from './ai/ai.module.js';
 
 @Module({
-  imports: [ConfigModule.forRoot({ isGlobal: true }), NotificationsModule, AuthModule, DashboardModule, SpidAuthModule, PatientModule, PsiModule, Questionari_amministratoreModule, Pazienti_amministratoreModule, Psicologi_amministratoreModule, AdminSupportModule, InvalidazioneModule, AdminNotificheModule],
+  imports: [ConfigModule.forRoot({ isGlobal: true }), AiModule, NotificationsModule, AuthModule, DashboardModule, SpidAuthModule, PatientModule, PsiModule, Questionari_amministratoreModule, Pazienti_amministratoreModule, Psicologi_amministratoreModule, AdminSupportModule, InvalidazioneModule, AdminNotificheModule],
   controllers: [AppController],
   providers: [AppService],
 })
