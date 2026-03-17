@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import ReactDOM from 'react-dom';
-import { FileText, MessageCircle, FileQuestion, Send } from 'lucide-react';
+import { FileText, MessageCircle, FileQuestion, Send, AlertCircle } from 'lucide-react';
 import type { QuestionnaireData } from '../types/questionnaire';
 import Toast from './Toast';
 import '../css/Modal.css';
@@ -132,6 +132,47 @@ const QuestionnaireDetailModal: React.FC<QuestionnaireDetailModalProps> = ({
                                 <div className="modal-data-row-dot modal-data-row-dot-orange"></div>
                                 <span className="modal-data-row-label">Punteggio</span>
                                 <span className="modal-data-row-value modal-data-row-value-highlight">{questionnaire.score}</span>
+                            </div>
+                        )}
+                    </div>
+
+                    {/* AI Analysis Section */}
+                    <div className="modal-data-section" style={{ borderLeft: questionnaire.sospetto ? '4px solid #E57373' : '4px solid #83B9C1' }}>
+                        <div className="modal-data-section-title">
+                            <div className="modal-data-section-title-icon" style={{ background: questionnaire.sospetto ? '#E57373' : '#83B9C1' }}>
+                                <AlertCircle size={14} />
+                            </div>
+                            Analisi AI SINTON-IA
+                        </div>
+
+                        <div className="modal-data-row">
+                            <div className="modal-data-row-dot" style={{ background: '#5a9aa5' }}></div>
+                            <span className="modal-data-row-label">Punteggio Predetto AI</span>
+                            <span className="modal-data-row-value">
+                                {questionnaire.scoreAi !== null ? `${questionnaire.scoreAi} / 100` : 'In elaborazione o non disponibile'}
+                            </span>
+                        </div>
+
+                        {questionnaire.sospetto && (
+                            <div style={{ 
+                                marginTop: '16px', 
+                                padding: '12px', 
+                                background: '#fef2f2', 
+                                borderRadius: '8px', 
+                                border: '1px solid #fee2e2',
+                                display: 'flex',
+                                gap: '12px',
+                                alignItems: 'flex-start'
+                            }}>
+                                <AlertCircle size={20} color="#d32f2f" style={{ flexShrink: 0, marginTop: '2px' }} />
+                                <div>
+                                    <div style={{ fontSize: '14px', fontWeight: '700', color: '#d32f2f', marginBottom: '4px' }}>
+                                        Attenzione: Questionario Sospetto
+                                    </div>
+                                    <div style={{ fontSize: '13px', color: '#7f1d1d', lineHeight: '1.4' }}>
+                                        L'AI ha rilevato una discrepanza significativa ({'>'}18.5%) tra lo stato d'animo recente del paziente e il punteggio dichiarato nel questionario. Si consiglia un'attenta revisione clinica.
+                                    </div>
+                                </div>
                             </div>
                         )}
                     </div>
