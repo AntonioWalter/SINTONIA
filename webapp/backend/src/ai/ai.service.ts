@@ -29,18 +29,18 @@ export class AiService implements OnModuleInit {
 
     // 1. Controllo se l'URL esiste
     if (!this.aiApiUrl) {
-      this.logger.error('[DEBUG ERROR] AI_API_URL è undefined. Controlla che il file .env sia nella cartella backend/ e che le variabili siano scritte correttamente.');
+      this.logger.error('[DEBUG ERROR] AI_API_URL è undefined. Controlla che il file .env sia nella cartella backend/ e che le variabili siano caricate.');
       return null;
     }
 
     try {
-      // 2. Costruzione URL
+      // 2. Costruzione URL e invio richiesta
       const url = `${this.aiApiUrl}/api/${endpoint}`;
       this.logger.log(`[DEBUG] Chiamata POST a: ${url}`);
       this.logger.log(`[DEBUG] Payload inviato: ${JSON.stringify(payload)}`);
 
-      // 3. Esecuzione chiamata
-      const response: any = await firstValueFrom(
+      // 3. Chiamata HTTP con headers (incluso il token HF)
+      const response = await firstValueFrom(
         this.httpService.post(url, payload, {
           headers: {
             'Authorization': `Bearer ${this.hfToken}`,
@@ -73,18 +73,57 @@ export class AiService implements OnModuleInit {
   }
 
   /**
+   * Predict Genetic Algorithm: Invia le feature estratte all'endpoint del GA
+   */
+  async predictGeneticAlgorithm(payload: any): Promise<any> {
+    this.logger.log(`[DEBUG] Inizio procedura predict per Algoritmo Genetico`);
+
+    if (!this.aiApiUrl) {
+      this.logger.error('[DEBUG ERROR] AI_API_URL è undefined. Controlla le variabili d\'ambiente.');
+      return null;
+    }
+
+    try {
+      const url = `${this.aiApiUrl}/api/genetic-algorithm`;
+      this.logger.log(`[DEBUG] Chiamata POST a: ${url}`);
+      this.logger.log(`[DEBUG] Payload GA inviato: ${JSON.stringify(payload)}`);
+
+      const response = await firstValueFrom(
+        this.httpService.post(url, payload, {
+          headers: {
+            'Authorization': `Bearer ${this.hfToken}`,
+            'Content-Type': 'application/json',
+          },
+        })
+      );
+
+      this.logger.log(`[DEBUG] Strategia Genetica ricevuta con successo!`);
+      this.logger.log(`[DEBUG] Dati Strategia: ${JSON.stringify(response.data)}`);
+      
+      return response.data;
+
+    } catch (error: any) {
+      this.logger.error(`[DEBUG ERROR] Errore durante la chiamata IA [genetic-algorithm]`);
+      
+      if (error.response) {
+        this.logger.error(`Stato Errore: ${error.response.status}`);
+        this.logger.error(`Messaggio Errore: ${JSON.stringify(error.response.data)}`);
+      } else {
+        this.logger.error(`Messaggio Errore: ${error.message}`);
+      }
+      
+      return null;
+    }
+  }
+
+  /**
    * Pre-Warming: Invia un segnale per "svegliare" lo Space.
    */
   wakeUpModels(): void {
     if (!this.aiApiUrl) return;
     this.logger.log(`[DEBUG] Tentativo di risveglio Space: ${this.aiApiUrl}`);
     
-    this.httpService.axiosRef.get(this.aiApiUrl, {
-      headers: { 'Authorization': `Bearer ${this.hfToken}` }
-    }).then(() => {
-        this.logger.log('[DEBUG] Space sveglio o raggiungibile.');
-    }).catch((err) => {
-      this.logger.warn(`[DEBUG] Lo Space si sta ancora svegliando o errore: ${err.message}`);
-    });
+    // Fire and forget, ignora gli errori se sta già rispondendo
+    this.httpService.axiosRef.get(this.aiApiUrl).catch(() => {});
   }
 }
