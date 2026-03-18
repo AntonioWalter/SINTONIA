@@ -1,5 +1,5 @@
 {
-  "id": "7f59b484-d613-42cd-842d-b4ae8f8c5d97",
+  "id": "3f6f26f2-06ee-463f-ab4d-631014094554",
   "prevId": "4a381f21-509f-45ad-9b55-2e195d61a837",
   "version": "7",
   "dialect": "postgresql",
@@ -788,6 +788,19 @@
           "type": "varchar(64)",
           "primaryKey": false,
           "notNull": false
+        },
+        "score_ai": {
+          "name": "score_ai",
+          "type": "double precision",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "sospetto": {
+          "name": "sospetto",
+          "type": "boolean",
+          "primaryKey": false,
+          "notNull": false,
+          "default": false
         }
       },
       "indexes": {},

@@ -5,7 +5,7 @@ WORKDIR /app
 # Copiamo i file dei pacchetti
 COPY package*.json ./
 
-# Installiamo le dipendenze
+# Installiamo tutte le dipendenze (incluse quelle di sviluppo come Nest CLI)
 RUN npm install
 
 # Copiamo la cartella dist (che contiene la sottocartella src)

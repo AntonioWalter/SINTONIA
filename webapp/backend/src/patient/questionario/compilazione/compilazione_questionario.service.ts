@@ -1,17 +1,19 @@
 import { Injectable, BadRequestException, NotFoundException } from '@nestjs/common';
 import { db } from '../../../drizzle/db.js';
-import { questionario, tipologiaQuestionario, paziente } from '../../../drizzle/schema.js';
-import { eq } from 'drizzle-orm';
+import { questionario, tipologiaQuestionario, paziente, statoAnimo } from '../../../drizzle/schema.js';
+import { eq, desc, sql } from 'drizzle-orm';
 import { ScoreService } from '../../score/score.service.js';
 import { AlertService } from '../../alert/alert.service.js';
 import { BadgeService } from '../../badge/badge.service.js';
+import { AiService } from '../../../ai/ai.service.js';
 
 @Injectable()
 export class Compilazione_questionarioService {
     constructor(
         private readonly scoreService: ScoreService,
         private readonly alertService: AlertService,
-        private readonly badgeService: BadgeService
+        private readonly badgeService: BadgeService,
+        private readonly aiService: AiService
     ) { }
     // --- VALIDAZIONI ---
 
@@ -264,6 +266,77 @@ export class Compilazione_questionarioService {
             return acc;
         }, {} as Record<string, number>);
 
+        // --- ANALISI AI (PREDIZIONE DEPRESSIONE) ---
+        let scoreAi: number | null = null;
+        let sospetto = false;
+
+        try {
+            // 1. Recupera gli ultimi 14 giorni reali per calcolare l'apatia (missing logs)
+            const logs: any[] = [];
+            const now = new Date();
+            
+            for (let i = 0; i < 14; i++) {
+                const dateToCheck = new Date();
+                dateToCheck.setDate(now.getDate() - i);
+                dateToCheck.setHours(0, 0, 0, 0);
+
+                const nextDay = new Date(dateToCheck);
+                nextDay.setDate(dateToCheck.getDate() + 1);
+
+                // Cerchiamo se esiste un log in quel giorno specifico
+                const moodEntry = await db
+                    .select()
+                    .from(statoAnimo)
+                    .where(sql`${statoAnimo.idPaziente} = ${idPaziente} AND ${statoAnimo.dataInserimento} >= ${dateToCheck} AND ${statoAnimo.dataInserimento} < ${nextDay}`)
+                    .limit(1);
+
+                if (moodEntry.length > 0) {
+                    const m = moodEntry[0];
+                    const MOOD_VALENCE_MAP: Record<string, number> = {
+                        'Felice': 0.85, 'Sereno': 0.7, 'Energico': 0.5, 'Neutro': 0.0,
+                        'Stanco': -0.2, 'Triste': -0.8, 'Ansioso': -0.55, 'Arrabbiato': -0.7,
+                        'Spaventato': -0.65, 'Confuso': -0.3,
+                    };
+
+                    logs.push({
+                        mood_state: m.umore,
+                        valence: MOOD_VALENCE_MAP[m.umore] || 0.0,
+                        intensity: m.intensita || 5,
+                        is_missing: false
+                    });
+                } else {
+                    // SE IL LOG MANCA: Diamo il segnale di apatia (is_missing: true)
+                    logs.push({
+                        mood_state: 'Neutro',
+                        valence: 0.0,
+                        intensity: 0.0,
+                        is_missing: true
+                    });
+                }
+            }
+
+            // Ordine cronologico (modello vuole trend dal passato al presente)
+            logs.reverse();
+
+            if (logs.filter(l => !l.is_missing).length >= 3) {
+                const aiResponse = await this.aiService.predict('predict-depression', { logs });
+                
+                if (aiResponse && aiResponse.phq9_score !== undefined) {
+                    // Convertiamo il PHQ-9 (0-27) in scala 100 per coerenza con SINTONIA
+                    const scoreAi100 = (aiResponse.phq9_score / 27) * 100;
+                    scoreAi = Math.round(scoreAi100 * 100) / 100; // Arrotondamento a 2 decimali
+
+                    // Calcolo sospetto: confrontiamo entrambi i valori in scala 100.
+                    // Una differenza di 5 punti su 27 (originale) equivale a circa 18.5 punti su 100.
+                    if (Math.abs(score - scoreAi) > 18.5) {
+                        sospetto = true;
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('[AiService] Errore analisi predittiva:', e);
+        }
+
         const inserted = await db
             .insert(questionario)
             .values({
@@ -272,6 +345,8 @@ export class Compilazione_questionarioService {
                 score,
                 risposte: risposteJson,
                 cambiamento: false,
+                scoreAi,
+                sospetto
             })
             .returning({ id: questionario.idQuestionario });
 

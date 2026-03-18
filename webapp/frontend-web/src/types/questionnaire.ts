@@ -29,6 +29,8 @@ export interface QuestionnaireData {
     idAmministratoreConferma: string | null;
     domande: string[]; // Array of questions from tipologia_questionario
     campi: string[]; // Array of answer options from tipologia_questionario
+    scoreAi: number | null;
+    sospetto: boolean;
 }
 
 /**

@@ -285,4 +285,8 @@ export const questionario = pgTable('questionario', {
     idAmministratoreConferma: varchar('id_amministratore_conferma', {
         length: 64,
     }).references(() => amministratore.email),
+
+    // --- AI Prediction Fields ---
+    scoreAi: doublePrecision('score_ai'),
+    sospetto: boolean('sospetto').default(false),
 });

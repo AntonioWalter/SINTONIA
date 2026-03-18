@@ -1,5 +1,4 @@
-import React from 'react';
-import { ClipboardList } from 'lucide-react';
+import { ClipboardList, AlertCircle } from 'lucide-react';
 import type { QuestionnaireData } from '../types/psychologist';
 import '../css/QuestionnaireTable.css';
 import '../css/EmptyState.css';
@@ -46,6 +45,7 @@ const QuestionnaireTable: React.FC<QuestionnaireTableProps> = ({
             <table className="questionnaire-table">
                 <thead>
                     <tr>
+                        <th style={{ width: '50px' }}>Sospetto</th>
                         <th>ID Questionario</th>
                         {role === 'admin' && <th>Autore (ID Paziente)</th>}
                         <th>Tipologia</th>
@@ -65,6 +65,15 @@ const QuestionnaireTable: React.FC<QuestionnaireTableProps> = ({
                                 className={isSelected ? 'selected' : ''}
                                 onClick={() => onSelect(q.idQuestionario)}
                             >
+                                <td style={{ textAlign: 'center' }}>
+                                    {q.sospetto && (
+                                        <AlertCircle 
+                                            size={20} 
+                                            color="#E57373" 
+                                            style={{ filter: 'drop-shadow(0 0 2px rgba(229, 115, 115, 0.4))' }}
+                                        />
+                                    )}
+                                </td>
                                 <td
                                     className="questionnaire-id-cell"
                                 >
@@ -73,7 +82,22 @@ const QuestionnaireTable: React.FC<QuestionnaireTableProps> = ({
                                 {role === 'admin' && <td>{q.idPaziente}</td>}
                                 <td>{q.nomeTipologia}</td>
                                 <td>{formatDate(q.dataCompilazione)}</td>
-                                <td>{q.score !== null ? q.score : '-'}</td>
+                                <td>
+                                    <div style={{ display: 'flex', alignItems: 'center', gap: '8px' }}>
+                                        {q.score !== null ? q.score : '-'}
+                                        {q.sospetto && (
+                                            <span style={{ 
+                                                fontSize: '10px', 
+                                                background: '#fef2f2', 
+                                                color: '#d32f2f', 
+                                                padding: '2px 6px', 
+                                                borderRadius: '4px',
+                                                border: '1px solid #fee2e2',
+                                                fontWeight: '700'
+                                            }}>AI: {q.scoreAi}</span>
+                                        )}
+                                    </div>
+                                </td>
                                 {role === 'admin' && <td>{formatDate(q.dataInvalidazione)}</td>}
                                 <td className="actions-cell">
                                     <button
