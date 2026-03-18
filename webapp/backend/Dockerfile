@@ -6,7 +6,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Installiamo le dipendenze
-RUN npm install --only=production
+RUN npm install
 
 # Copiamo la cartella dist (che contiene la sottocartella src)
 COPY dist ./dist
