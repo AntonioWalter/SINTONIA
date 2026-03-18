@@ -21,7 +21,7 @@ export class NotificationHelperService {
                 await db.insert(notifica).values({
                     titolo,
                     descrizione,
-                    tipologia,
+                    tipologia: tipologia as any,
                     idAmministratore: admin.email,
                     letto: false,
                 });
@@ -45,7 +45,7 @@ export class NotificationHelperService {
             await db.insert(notifica).values({
                 titolo,
                 descrizione,
-                tipologia,
+                tipologia: tipologia as any,
                 idPsicologo: codiceFiscale,
                 letto: false,
             });
@@ -67,7 +67,7 @@ export class NotificationHelperService {
             await db.insert(notifica).values({
                 titolo,
                 descrizione,
-                tipologia,
+                tipologia: tipologia as any,
                 idAmministratore: email,
                 letto: false,
             });
@@ -89,7 +89,7 @@ export class NotificationHelperService {
             await db.insert(notifica).values({
                 titolo,
                 descrizione,
-                tipologia,
+                tipologia: tipologia as any,
                 idPaziente,
                 letto: false,
             });

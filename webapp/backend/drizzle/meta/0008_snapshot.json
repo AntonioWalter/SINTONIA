@@ -297,7 +297,8 @@
         },
         "tipologia": {
           "name": "tipologia",
-          "type": "varchar(32)",
+          "type": "tipologia_notifica",
+          "typeSchema": "public",
           "primaryKey": false,
           "notNull": false
         },
@@ -531,6 +532,18 @@
           "primaryKey": false,
           "notNull": true,
           "default": true
+        },
+        "strategia_attuale": {
+          "name": "strategia_attuale",
+          "type": "jsonb",
+          "primaryKey": false,
+          "notNull": false
+        },
+        "data_aggiornamento_strategia": {
+          "name": "data_aggiornamento_strategia",
+          "type": "timestamp",
+          "primaryKey": false,
+          "notNull": false
         },
         "id_priorita": {
           "name": "id_priorita",
@@ -1250,6 +1263,18 @@
         "M",
         "F",
         "Altro"
+      ]
+    },
+    "public.tipologia_notifica": {
+      "name": "tipologia_notifica",
+      "schema": "public",
+      "values": [
+        "Promemoria",
+        "Motivazionale",
+        "Informativa",
+        "Questionario",
+        "SUPPORTO",
+        "INVALIDAZIONE"
       ]
     },
     "public.umore": {
