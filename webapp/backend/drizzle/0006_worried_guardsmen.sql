@@ -1,1 +1,0 @@
-ALTER TABLE "paziente" ALTER COLUMN "score" DROP DEFAULT;
