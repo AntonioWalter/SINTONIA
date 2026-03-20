@@ -127,29 +127,59 @@ export class AiService implements OnModuleInit {
     this.httpService.axiosRef.get(this.aiApiUrl).catch(() => {});
   }
 
+  // Coda di traduzione (Anti-Ban per Google Translate: max 5 chiamate/minuto)
+  private translationQueue: Array<{ text: string, resolve: (value: string) => void }> = [];
+  private isTranslating = false;
+  private readonly TRANSLATION_DELAY_MS = 12500; // 12.5 secondi per garantire margine sulle 5/minuto
+
   /**
-   * Traduce un testo dall'italiano all'inglese usando Google Translate.
-   * Necessario per il modello Red Flag che funziona in inglese.
+   * Mette in coda una traduzione dall'italiano all'inglese usando Google Translate.
+   * Il sistema processerà la coda ad un ritmo costante per evitare ban dell'IP.
    * @param text - Il testo in italiano da tradurre
-   * @returns Il testo tradotto in inglese
+   * @returns Il testo tradotto in inglese come Promise
    */
   async translateToEnglish(text: string): Promise<string> {
+    return new Promise((resolve) => {
+      this.translationQueue.push({ text, resolve });
+      this.processTranslationQueue();
+    });
+  }
+
+  /**
+   * Motore di processamento della coda (Leaky Bucket) a 12.5 secondi
+   */
+  private async processTranslationQueue() {
+    // Se sta già traducendo o la coda è vuota, si ferma. (Il timeout sveglierà il prossimo)
+    if (this.isTranslating || this.translationQueue.length === 0) {
+      return;
+    }
+
+    this.isTranslating = true;
+    const { text, resolve } = this.translationQueue.shift()!;
+
     try {
-      // Dynamic import perché google-translate-api-x è un modulo ESM
+      this.logger.log(`[TRANSLATE QUEUE] Processando traduzione. Elementi in attesa: ${this.translationQueue.length}`);
+      
       const translateModule = await (Function('return import("google-translate-api-x")')() as Promise<any>);
       const translate = translateModule.default || translateModule.translate;
       
       const result = await translate(text, { from: 'it', to: 'en' });
       
-      this.logger.log(`[TRANSLATE] Testo originale (IT): "${text.substring(0, 80)}..."`);
-      this.logger.log(`[TRANSLATE] Testo tradotto (EN): "${result.text.substring(0, 80)}..."`);
-      
-      return result.text;
+      this.logger.log(`[TRANSLATE] Originale (IT): "${text.substring(0, 50)}..." -> EN: "${result.text.substring(0, 50)}..."`);
+      resolve(result.text);
     } catch (error: any) {
-      this.logger.error(`[TRANSLATE ERROR] Errore durante la traduzione: ${error.message}`);
-      // In caso di errore di traduzione, restituisce il testo originale
-      // così il modello red-flag può comunque tentare l'analisi
-      return text;
+      this.logger.error(`[TRANSLATE ERROR] Errore API: ${error.message}. Procedo con invio no-translate come fallback.`);
+      resolve(text); // Fallback al testo originale per permettere all'AI di tentare comunque l'analisi (l'AI supporta multilingua degradato)
+    } finally {
+      if (this.translationQueue.length > 0) {
+        this.logger.log(`[TRANSLATE QUEUE] Sleep 12.5s attivato per evitare Rate-Limit (Google Ban).`);
+        setTimeout(() => {
+          this.isTranslating = false;
+          this.processTranslationQueue(); // Processa il prossimo
+        }, this.TRANSLATION_DELAY_MS);
+      } else {
+        this.isTranslating = false; // Ferma il loop
+      }
     }
   }
 }
