@@ -127,16 +127,15 @@ export class AiService implements OnModuleInit {
     this.httpService.axiosRef.get(this.aiApiUrl).catch(() => {});
   }
 
-  // Coda di traduzione (Anti-Ban per Google Translate: max 5 chiamate/minuto)
+  // Coda di traduzione (Anti-Ban: Massimo 5 chiamate/minuto REALI)
   private translationQueue: Array<{ text: string, resolve: (value: string) => void }> = [];
   private isTranslating = false;
-  private readonly TRANSLATION_DELAY_MS = 12500; // 12.5 secondi per garantire margine sulle 5/minuto
+  private lastTranslateStartTime = 0; // Timestamp dell'ultima traduzione AVVIATA
+  private readonly TRANSLATION_DELAY_MS = 12500; // 12.5 secondi (Garantisce < 5 chiamate/minuto)
 
   /**
    * Mette in coda una traduzione dall'italiano all'inglese usando Google Translate.
-   * Il sistema processerà la coda ad un ritmo costante per evitare ban dell'IP.
-   * @param text - Il testo in italiano da tradurre
-   * @returns Il testo tradotto in inglese come Promise
+   * Il sistema garantisce un distacco di 12.5s tra ogni chiamata per evitare il ban dell'IP.
    */
   async translateToEnglish(text: string): Promise<string> {
     return new Promise((resolve) => {
@@ -146,39 +145,52 @@ export class AiService implements OnModuleInit {
   }
 
   /**
-   * Motore di processamento della coda (Leaky Bucket) a 12.5 secondi
+   * Motore di processamento con THROTTLE GLOBALE (Garantisce il distacco minimo sempre)
    */
   private async processTranslationQueue() {
-    // Se sta già traducendo o la coda è vuota, si ferma. (Il timeout sveglierà il prossimo)
+    // 1. Se sta già lavorando o non c'è nulla in coda, ci fermiamo.
     if (this.isTranslating || this.translationQueue.length === 0) {
       return;
     }
 
+    // 2. Controllo Tempo Globale: Quanto tempo è passato dall'ultima traduzione iniziata?
+    const now = Date.now();
+    const timeSinceLast = now - this.lastTranslateStartTime;
+
+    if (timeSinceLast < this.TRANSLATION_DELAY_MS) {
+      // Non sono ancora passati 12.5 secondi. Aspettiamo il tempo rimanente.
+      const waitTime = this.TRANSLATION_DELAY_MS - timeSinceLast;
+      
+      this.isTranslating = true; // Blocchiamo la coda durante l'attesa
+      setTimeout(() => {
+        this.isTranslating = false;
+        this.processTranslationQueue(); // Riprova allo scadere del timer
+      }, waitTime);
+      return;
+    }
+
+    // 3. ESECUZIONE: Se siamo qui, possiamo tradurre subito.
     this.isTranslating = true;
+    this.lastTranslateStartTime = Date.now(); // Segniamo il tempo di inizio di questa chiamata
+    
     const { text, resolve } = this.translationQueue.shift()!;
 
     try {
-      this.logger.log(`[TRANSLATE QUEUE] Processando traduzione. Elementi in attesa: ${this.translationQueue.length}`);
+      this.logger.log(`[TRANSLATE QUEUE] Avvio traduzione (Coda rimasta: ${this.translationQueue.length})`);
       
       const translateModule = await (Function('return import("google-translate-api-x")')() as Promise<any>);
       const translate = translateModule.default || translateModule.translate;
       
       const result = await translate(text, { from: 'it', to: 'en' });
-      
-      this.logger.log(`[TRANSLATE] Originale (IT): "${text.substring(0, 50)}..." -> EN: "${result.text.substring(0, 50)}..."`);
       resolve(result.text);
     } catch (error: any) {
-      this.logger.error(`[TRANSLATE ERROR] Errore API: ${error.message}. Procedo con invio no-translate come fallback.`);
-      resolve(text); // Fallback al testo originale per permettere all'AI di tentare comunque l'analisi (l'AI supporta multilingua degradato)
+      this.logger.error(`[TRANSLATE ERROR] Errore API: ${error.message}. Fallback originale.`);
+      resolve(text);
     } finally {
+      // Liberiamo lo stato e, se c'è ancora gente in coda, rilanciamo il processo (che aspetterà nel punto 2)
+      this.isTranslating = false;
       if (this.translationQueue.length > 0) {
-        this.logger.log(`[TRANSLATE QUEUE] Sleep 12.5s attivato per evitare Rate-Limit (Google Ban).`);
-        setTimeout(() => {
-          this.isTranslating = false;
-          this.processTranslationQueue(); // Processa il prossimo
-        }, this.TRANSLATION_DELAY_MS);
-      } else {
-        this.isTranslating = false; // Ferma il loop
+        this.processTranslationQueue();
       }
     }
   }
