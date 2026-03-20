@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { isAuthenticated } from './services/spid-auth.service';
 import Splash from './pages/Splash';
 import Welcome from './pages/Welcome';
+import DisclaimerPage from './pages/DisclaimerPage';
 import SPIDInfo from './pages/SPIDInfo';
 import SPIDCallback from './pages/SPIDCallback';
 import Home from './pages/Home';
@@ -52,6 +53,7 @@ function App() {
         <NotificationProvider>
           <Routes>
             <Route path="/" element={<Splash />} />
+            <Route path="/disclaimer" element={<DisclaimerPage />} />
             <Route path="/welcome" element={<Welcome />} />
             <Route path="/spid-info" element={<SPIDInfo />} />
             <Route path="/spid-callback" element={<SPIDCallback />} />
