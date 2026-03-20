@@ -126,4 +126,30 @@ export class AiService implements OnModuleInit {
     // Fire and forget, ignora gli errori se sta già rispondendo
     this.httpService.axiosRef.get(this.aiApiUrl).catch(() => {});
   }
+
+  /**
+   * Traduce un testo dall'italiano all'inglese usando Google Translate.
+   * Necessario per il modello Red Flag che funziona in inglese.
+   * @param text - Il testo in italiano da tradurre
+   * @returns Il testo tradotto in inglese
+   */
+  async translateToEnglish(text: string): Promise<string> {
+    try {
+      // Dynamic import perché google-translate-api-x è un modulo ESM
+      const translateModule = await (Function('return import("google-translate-api-x")')() as Promise<any>);
+      const translate = translateModule.default || translateModule.translate;
+      
+      const result = await translate(text, { from: 'it', to: 'en' });
+      
+      this.logger.log(`[TRANSLATE] Testo originale (IT): "${text.substring(0, 80)}..."`);
+      this.logger.log(`[TRANSLATE] Testo tradotto (EN): "${result.text.substring(0, 80)}..."`);
+      
+      return result.text;
+    } catch (error: any) {
+      this.logger.error(`[TRANSLATE ERROR] Errore durante la traduzione: ${error.message}`);
+      // In caso di errore di traduzione, restituisce il testo originale
+      // così il modello red-flag può comunque tentare l'analisi
+      return text;
+    }
+  }
 }
