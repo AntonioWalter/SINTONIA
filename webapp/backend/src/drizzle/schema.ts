@@ -223,6 +223,8 @@ export const alertClinico = pgTable('alert_clinico', {
     idAlert: uuid('id_alert').defaultRandom().primaryKey(),
     dataAlert: timestamp('data_alert').defaultNow(),
     accettato: boolean('accettato').default(false).notNull(),
+    descrizione: text('descrizione'), // Snapshot del contenuto che ha generato l'alert
+    rifiutato: boolean('rifiutato').default(false).notNull(), // Flag per scartare l'alert (Falsi positivi)
 
     idPaziente: uuid('id_paziente')
         .notNull()

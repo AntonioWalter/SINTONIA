@@ -16,12 +16,39 @@ export class AlertCliniciService {
                 idAlert: alertClinico.idAlert,
                 dataAlert: alertClinico.dataAlert,
                 stato: alertClinico.accettato,
+                descrizione: alertClinico.descrizione, // Nuovo campo aggiunto
             })
             .from(alertClinico)
-            .where(eq(alertClinico.accettato, false))
+            .where(
+                and(
+                    eq(alertClinico.accettato, false),
+                    eq(alertClinico.rifiutato, false) // 🛡️ Esclude quelli scartati
+                )
+            )
             .orderBy(alertClinico.dataAlert);
 
         return rows;
+    }
+
+    /**
+     * Rifiuta un alert clinico (falso positivo identificato dallo psicologo)
+     * @param idAlert - UUID dell'alert da rifiutare
+     */
+    async rifiutaAlert(idAlert: string) {
+        const result = await db
+            .update(alertClinico)
+            .set({
+                rifiutato: true,
+            })
+            .where(
+                and(
+                    eq(alertClinico.idAlert, idAlert),
+                    eq(alertClinico.accettato, false) // Solo se non è stato già preso in carico
+                )
+            )
+            .returning();
+
+        return result[0];
     }
 
     /**

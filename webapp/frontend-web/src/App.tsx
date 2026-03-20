@@ -1,5 +1,6 @@
 import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-dom';
 import Login from './pages/Login';
+import DisclaimerPage from './pages/DisclaimerPage';
 import AppLayout from './components/AppLayout';
 import PsychologistPatientList from './pages/PsychologistPatientList';
 import AdminPatientList from './pages/AdminPatientList';
@@ -27,6 +28,10 @@ function App() {
   return (
     <Router>
       <Routes>
+        {/* Entry points */}
+        <Route path="/" element={<Navigate to="/disclaimer" replace />} />
+        <Route path="/disclaimer" element={<DisclaimerPage />} />
+
         {/* Login page */}
         <Route path="/login" element={<Login />} />
         <Route path="/spid-callback" element={<SpidCallback />} />
@@ -76,12 +81,9 @@ function App() {
         <Route path="/forum" element={<Navigate to="/dashboard/forum" replace />} />
         <Route path="/clinical-alerts" element={<Navigate to="/dashboard/clinical-alerts" replace />} />
 
-        {/* Default route */}
-        <Route path="/" element={<Navigate to="/login" replace />} />
       </Routes>
     </Router>
   );
 }
 
-export default App
-
+export default App;

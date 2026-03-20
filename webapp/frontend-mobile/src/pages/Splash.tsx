@@ -12,9 +12,9 @@ const Splash = () => {
             setFadeOut(true);
         }, 1500);
 
-        // Navigate to welcome after fade out completes
+        // Navigate to disclaimer after fade out completes
         const navTimer = setTimeout(() => {
-            navigate('/welcome');
+            navigate('/disclaimer');
         }, 2000);
 
         return () => {

@@ -126,4 +126,72 @@ export class AiService implements OnModuleInit {
     // Fire and forget, ignora gli errori se sta già rispondendo
     this.httpService.axiosRef.get(this.aiApiUrl).catch(() => {});
   }
+
+  // Coda di traduzione (Anti-Ban: Massimo 5 chiamate/minuto REALI)
+  private translationQueue: Array<{ text: string, resolve: (value: string) => void }> = [];
+  private isTranslating = false;
+  private lastTranslateStartTime = 0; // Timestamp dell'ultima traduzione AVVIATA
+  private readonly TRANSLATION_DELAY_MS = 12500; // 12.5 secondi (Garantisce < 5 chiamate/minuto)
+
+  /**
+   * Mette in coda una traduzione dall'italiano all'inglese usando Google Translate.
+   * Il sistema garantisce un distacco di 12.5s tra ogni chiamata per evitare il ban dell'IP.
+   */
+  async translateToEnglish(text: string): Promise<string> {
+    return new Promise((resolve) => {
+      this.translationQueue.push({ text, resolve });
+      this.processTranslationQueue();
+    });
+  }
+
+  /**
+   * Motore di processamento con THROTTLE GLOBALE (Garantisce il distacco minimo sempre)
+   */
+  private async processTranslationQueue() {
+    // 1. Se sta già lavorando o non c'è nulla in coda, ci fermiamo.
+    if (this.isTranslating || this.translationQueue.length === 0) {
+      return;
+    }
+
+    // 2. Controllo Tempo Globale: Quanto tempo è passato dall'ultima traduzione iniziata?
+    const now = Date.now();
+    const timeSinceLast = now - this.lastTranslateStartTime;
+
+    if (timeSinceLast < this.TRANSLATION_DELAY_MS) {
+      // Non sono ancora passati 12.5 secondi. Aspettiamo il tempo rimanente.
+      const waitTime = this.TRANSLATION_DELAY_MS - timeSinceLast;
+      
+      this.isTranslating = true; // Blocchiamo la coda durante l'attesa
+      setTimeout(() => {
+        this.isTranslating = false;
+        this.processTranslationQueue(); // Riprova allo scadere del timer
+      }, waitTime);
+      return;
+    }
+
+    // 3. ESECUZIONE: Se siamo qui, possiamo tradurre subito.
+    this.isTranslating = true;
+    this.lastTranslateStartTime = Date.now(); // Segniamo il tempo di inizio di questa chiamata
+    
+    const { text, resolve } = this.translationQueue.shift()!;
+
+    try {
+      this.logger.log(`[TRANSLATE QUEUE] Avvio traduzione (Coda rimasta: ${this.translationQueue.length})`);
+      
+      const translateModule = await (Function('return import("google-translate-api-x")')() as Promise<any>);
+      const translate = translateModule.default || translateModule.translate;
+      
+      const result = await translate(text, { from: 'it', to: 'en' });
+      resolve(result.text);
+    } catch (error: any) {
+      this.logger.error(`[TRANSLATE ERROR] Errore API: ${error.message}. Fallback originale.`);
+      resolve(text);
+    } finally {
+      // Liberiamo lo stato e, se c'è ancora gente in coda, rilanciamo il processo (che aspetterà nel punto 2)
+      this.isTranslating = false;
+      if (this.translationQueue.length > 0) {
+        this.processTranslationQueue();
+      }
+    }
+  }
 }
