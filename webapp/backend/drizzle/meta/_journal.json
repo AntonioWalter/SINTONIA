@@ -71,6 +71,20 @@
       "when": 1773758000000,
       "tag": "0009_round_nomad",
       "breakpoints": true
+    },
+    {
+      "idx": 10,
+      "version": "7",
+      "when": 1774036403516,
+      "tag": "0010_short_master_chief",
+      "breakpoints": true
+    },
+    {
+      "idx": 11,
+      "version": "7",
+      "when": 1774037447385,
+      "tag": "0011_secret_scrambler",
+      "breakpoints": true
     }
   ]
 }

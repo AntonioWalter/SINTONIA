@@ -100,7 +100,8 @@ export class UpdateDiaryPageService {
                 // Inseriamo il record critico nella tabella alert_clinico.
                 await db.insert(alertClinico).values({
                     idPaziente: patientId,
-                    accettato: false
+                    accettato: false,
+                    descrizione: `Contenuto a rischio rilevato nel diario: "${testo}"`
                 });
 
                 this.logger.log(`Alert Clinico globale salvato nel database per il Triage.`);

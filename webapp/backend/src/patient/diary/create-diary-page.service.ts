@@ -79,10 +79,10 @@ export class CreateDiaryPageService {
                 this.logger.warn(`🚨 RED FLAG RILEVATA per il paziente ${patientId}! Generazione alert in corso...`);
 
                 // Inseriamo il record critico nella tabella alert_clinico.
-                // Essendo il paziente in triage, l'alert sarà visibile nella dashboard globale degli psicologi.
                 await db.insert(alertClinico).values({
                     idPaziente: patientId,
-                    accettato: false
+                    accettato: false,
+                    descrizione: `Contenuto a rischio rilevato nel diario: "${testo}"`
                 });
 
                 this.logger.log(`Alert Clinico globale salvato nel database per il Triage.`);

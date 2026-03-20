@@ -3,7 +3,7 @@ import { createPortal } from 'react-dom';
 import { AlertTriangle } from 'lucide-react';
 import ClinicalAlertsTable from '../components/ClinicalAlertsTable';
 import PageHeader from '../components/PageHeader';
-import { fetchClinicalAlerts, acceptClinicalAlert } from '../services/alert-clinici.service';
+import { fetchClinicalAlerts, acceptClinicalAlert, rejectClinicalAlert } from '../services/alert-clinici.service';
 import type { ClinicalAlert, LoadingState } from '../types/alert';
 import '../css/ClinicalAlerts.css';
 import '../css/EmptyState.css';
@@ -63,6 +63,21 @@ const ClinicalAlerts: React.FC = () => {
 
     const handleAcceptClick = (id: string) => {
         setConfirmingAlertId(id);
+    };
+
+    const handleReject = async (id: string) => {
+        try {
+            await rejectClinicalAlert(id);
+            // Rimuoviamo l'alert dalla lista locale
+            setAlertsState(prev => ({
+                ...prev,
+                data: prev.data?.filter(alert => alert.idAlert !== id) || null,
+            }));
+            setToast({ message: 'Alert clinico rifiutato correttamente', type: 'success' });
+        } catch (error) {
+            console.error('Error rejecting alert:', error);
+            setToast({ message: 'Errore durante il rifiuto dell\'alert', type: 'error' });
+        }
     };
 
     const handleConfirmAccept = async () => {
@@ -136,6 +151,7 @@ const ClinicalAlerts: React.FC = () => {
                             <ClinicalAlertsTable
                                 alerts={getPaginatedAlerts()}
                                 onAccept={handleAcceptClick}
+                                onReject={handleReject}
                             />
 
                             {confirmingAlertId && createPortal(
