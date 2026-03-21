@@ -71,3 +71,17 @@ export const acceptClinicalAlert = async (id: string): Promise<void> => {
         throw error;
     }
 };
+
+/**
+ * Reject a clinical alert (mark as false positive)
+ * @param id - Alert ID to reject
+ */
+export const rejectClinicalAlert = async (id: string): Promise<void> => {
+    try {
+        await axiosInstance.patch(`${API_URL}/${id}/reject`);
+        console.log(`Alert ${id} rifiutato con successo`);
+    } catch (error) {
+        console.error('Errore durante il rifiuto dell\'alert:', error);
+        throw error;
+    }
+};

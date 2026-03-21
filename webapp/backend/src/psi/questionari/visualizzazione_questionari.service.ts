@@ -55,6 +55,8 @@ export class Visualizzazione_questionariService {
         idPsicologoRevisione: questionario.idPsicologoRevisione,
         idPsicologoRichiedente: questionario.idPsicologoRichiedente,
         idAmministratoreConferma: questionario.idAmministratoreConferma,
+        scoreAi: questionario.scoreAi,
+        sospetto: questionario.sospetto,
       })
       .from(questionario)
       .innerJoin(paziente, eq(questionario.idPaziente, paziente.idPaziente))
@@ -88,6 +90,8 @@ export class Visualizzazione_questionariService {
         idPsicologoRevisione: questionario.idPsicologoRevisione,
         idPsicologoRichiedente: questionario.idPsicologoRichiedente,
         idAmministratoreConferma: questionario.idAmministratoreConferma,
+        scoreAi: questionario.scoreAi,
+        sospetto: questionario.sospetto,
       })
       .from(questionario)
       .innerJoin(paziente, eq(questionario.idPaziente, paziente.idPaziente))
@@ -133,6 +137,8 @@ export class Visualizzazione_questionariService {
         idPsicologoRevisione: questionario.idPsicologoRevisione,
         idPsicologoRichiedente: questionario.idPsicologoRichiedente,
         idAmministratoreConferma: questionario.idAmministratoreConferma,
+        scoreAi: questionario.scoreAi,
+        sospetto: questionario.sospetto,
       })
       .from(questionario)
       .where(and(
@@ -199,6 +205,8 @@ export class Visualizzazione_questionariService {
       idPsicologoRevisione: result.idPsicologoRevisione,
       idPsicologoRichiedente: result.idPsicologoRichiedente,
       idAmministratoreConferma: result.idAmministratoreConferma,
+      scoreAi: result.scoreAi,
+      sospetto: result.sospetto ?? false,
       domande: parseDomandeOCampi(tipologia.domande),
     };
   }

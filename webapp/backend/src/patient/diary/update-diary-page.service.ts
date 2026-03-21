@@ -87,8 +87,12 @@ export class UpdateDiaryPageService {
         this.logger.log(`Inviando la pagina di diario modificata del paziente ${patientId} a SINTON-IA...`);
         
         try {
-            // Chiamata all'API Python su Hugging Face
-            const aiResponse = await this.aiService.predict('red-flag', { testo });
+            // STEP 1: Traduzione IT → EN (il modello Red Flag funziona in inglese)
+            this.logger.log(`[RED FLAG] Traduzione del testo in inglese in corso...`);
+            const testoTradotto = await this.aiService.translateToEnglish(testo);
+
+            // STEP 2: Chiamata all'API Python su Hugging Face con il testo tradotto
+            const aiResponse = await this.aiService.predict('red-flag', { testo: testoTradotto });
 
             if (aiResponse && aiResponse.risk_detected) {
                 this.logger.warn(`🚨 RED FLAG RILEVATA nell'aggiornamento per il paziente ${patientId}! Generazione alert in corso...`);
@@ -96,7 +100,8 @@ export class UpdateDiaryPageService {
                 // Inseriamo il record critico nella tabella alert_clinico.
                 await db.insert(alertClinico).values({
                     idPaziente: patientId,
-                    accettato: false
+                    accettato: false,
+                    descrizione: `Contenuto a rischio rilevato nel diario: "${testo}"`
                 });
 
                 this.logger.log(`Alert Clinico globale salvato nel database per il Triage.`);

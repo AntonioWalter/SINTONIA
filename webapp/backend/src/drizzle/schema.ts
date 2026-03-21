@@ -33,7 +33,7 @@ export const statoTicketEnum = pgEnum('stato_ticket', [
     'In elaborazione',
 ]);
 
-// Nuovo Enum per Mood Tracking
+// Enum per Mood Tracking
 export const umoreEnum = pgEnum('umore', [
     'Felice',
     'Sereno',
@@ -45,6 +45,16 @@ export const umoreEnum = pgEnum('umore', [
     'Arrabbiato',
     'Spaventato',
     'Confuso',
+]);
+
+// Nuovo Enum per le tipologie di Notifica (Algoritmo Genetico)
+export const tipologiaNotificaEnum = pgEnum('tipologia_notifica', [
+    'Promemoria',
+    'Motivazionale',
+    'Informativa',
+    'Questionario',
+    'SUPPORTO',
+    'INVALIDAZIONE',
 ]);
 
 // --- TABLES ---
@@ -101,6 +111,11 @@ export const paziente = pgTable('paziente', {
     score: doublePrecision('score'),
     stato: boolean('stato').default(true).notNull(),
 
+    // --- NUOVI CAMPI PER ALGORITMO GENETICO ---
+    strategiaAttuale: jsonb('strategia_attuale'),
+    dataAggiornamentoStrategia: timestamp('data_aggiornamento_strategia'),
+    // ------------------------------------------
+
     idPriorita: nomePrioritaEnum('id_priorita')
         .notNull()
         .references(() => priorita.nome),
@@ -108,18 +123,18 @@ export const paziente = pgTable('paziente', {
         .references(() => psicologo.codFiscale),
 });
 
-// Modificato: Centralizzazione notifiche + Check constraint
 export const notifica = pgTable('notifica', {
     idNotifica: uuid('id_notifica').defaultRandom().primaryKey(),
     titolo: varchar('titolo', { length: 128 }).notNull(),
-    tipologia: varchar('tipologia', { length: 32 }),
+    
+    // Modificato: Ora usa l'Enum invece di varchar
+    tipologia: tipologiaNotificaEnum('tipologia'),
+    
     descrizione: text('descrizione').notNull(),
 
-    // Nuovi campi di stato
     dataInvio: timestamp('data_invio').defaultNow(),
     letto: boolean('letto').default(false),
 
-    // Foreign Keys (Tutte opzionali singolarmente)
     idPaziente: uuid('id_paziente')
         .references(() => paziente.idPaziente),
     idPsicologo: char('id_psicologo', { length: 16 })
@@ -127,7 +142,6 @@ export const notifica = pgTable('notifica', {
     idAmministratore: varchar('id_amministratore', { length: 64 })
         .references(() => amministratore.email),
 }, (t) => ({
-    // Vincolo: Almeno uno dei tre destinatari deve essere presente
     checkDestinatario: check('check_destinatario_notifica',
         sql`${t.idPaziente} IS NOT NULL OR ${t.idPsicologo} IS NOT NULL OR ${t.idAmministratore} IS NOT NULL`
     ),
@@ -148,7 +162,6 @@ export const domandaForum = pgTable('domanda_forum', {
 export const statoAnimo = pgTable('stato_animo', {
     idStatoAnimo: uuid('id_stato_animo').defaultRandom().primaryKey(),
 
-    // Modificato: Uso dell'enum specifico
     umore: umoreEnum('umore').notNull(),
 
     intensita: integer('intensita'),
@@ -210,6 +223,8 @@ export const alertClinico = pgTable('alert_clinico', {
     idAlert: uuid('id_alert').defaultRandom().primaryKey(),
     dataAlert: timestamp('data_alert').defaultNow(),
     accettato: boolean('accettato').default(false).notNull(),
+    descrizione: text('descrizione'), // Snapshot del contenuto che ha generato l'alert
+    rifiutato: boolean('rifiutato').default(false).notNull(), // Flag per scartare l'alert (Falsi positivi)
 
     idPaziente: uuid('id_paziente')
         .notNull()
@@ -272,4 +287,8 @@ export const questionario = pgTable('questionario', {
     idAmministratoreConferma: varchar('id_amministratore_conferma', {
         length: 64,
     }).references(() => amministratore.email),
+
+    // --- AI Prediction Fields ---
+    scoreAi: doublePrecision('score_ai'),
+    sospetto: boolean('sospetto').default(false),
 });

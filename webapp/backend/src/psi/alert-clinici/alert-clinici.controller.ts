@@ -70,5 +70,15 @@ export class AlertCliniciController {
 
         return this.alertCliniciService.accettaAlert(idAlert, codiceFiscalePsicologo);
     }
+
+    /**
+     * Endpoint per rifiutare un alert clinico (falso positivo)
+     */
+    @Patch(':id/reject')
+    @UseGuards(JwtAuthGuard, RolesGuard)
+    @Roles('psychologist')
+    async rifiutaAlert(@Param('id') idAlert: string) {
+        return this.alertCliniciService.rifiutaAlert(idAlert);
+    }
 }
 

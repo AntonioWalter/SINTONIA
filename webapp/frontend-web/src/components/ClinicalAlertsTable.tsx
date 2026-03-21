@@ -6,9 +6,10 @@ import '../css/EmptyState.css';
 interface ClinicalAlertsTableProps {
     alerts: ClinicalAlert[];
     onAccept: (id: string) => void;
+    onReject: (id: string) => void;
 }
 
-const ClinicalAlertsTable: React.FC<ClinicalAlertsTableProps> = ({ alerts, onAccept }) => {
+const ClinicalAlertsTable: React.FC<ClinicalAlertsTableProps> = ({ alerts, onAccept, onReject }) => {
     const formatDate = (date: Date | string): string => {
         const d = typeof date === 'string' ? new Date(date) : date;
         const day = String(d.getDate()).padStart(2, '0');
@@ -40,6 +41,7 @@ const ClinicalAlertsTable: React.FC<ClinicalAlertsTableProps> = ({ alerts, onAcc
                     <tr>
                         <th>ID Alert</th>
                         <th>Data</th>
+                        <th>Dettaglio Alert</th> {/* Nuovo Header */}
                         <th>Stato</th>
                         <th>Azioni</th>
                     </tr>
@@ -51,16 +53,28 @@ const ClinicalAlertsTable: React.FC<ClinicalAlertsTableProps> = ({ alerts, onAcc
                                 <span className="id-badge">{alert.idAlert.substring(0, 8)}...</span>
                             </td>
                             <td className="alert-date">{formatDate(alert.dataAlert)}</td>
+                            <td className="alert-description" style={{ maxWidth: '300px', fontSize: '14px', color: '#666', fontStyle: 'italic' }}>
+                                {alert.descrizione || '-'} {/* Visualizza il testo snapshot salvato */}
+                            </td>
                             <td className="alert-status">
                                 <span className="status-badge pending">Non Accettato</span>
                             </td>
                             <td className="alert-actions">
-                                <button
-                                    className="accept-btn"
-                                    onClick={() => onAccept(alert.idAlert)}
-                                >
-                                    Accetta
-                                </button>
+                                <div className="actions-wrapper" style={{ display: 'flex', gap: '8px' }}>
+                                    <button
+                                        className="accept-btn"
+                                        onClick={() => onAccept(alert.idAlert)}
+                                    >
+                                        Accetta
+                                    </button>
+                                    <button
+                                        className="reject-btn"
+                                        onClick={() => onReject(alert.idAlert)}
+                                        style={{ backgroundColor: '#ffefef', color: '#dc3545', border: '1px solid #ffcccc', padding: '6px 12px', borderRadius: '6px', cursor: 'pointer' }}
+                                    >
+                                        Rifiuta
+                                    </button>
+                                </div>
                             </td>
                         </tr>
                     ))}

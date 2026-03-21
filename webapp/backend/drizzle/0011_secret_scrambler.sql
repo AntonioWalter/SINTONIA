@@ -1,0 +1,1 @@
+ALTER TABLE "alert_clinico" ADD COLUMN "rifiutato" boolean DEFAULT false NOT NULL;
