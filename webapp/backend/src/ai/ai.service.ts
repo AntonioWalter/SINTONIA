@@ -8,7 +8,6 @@ export class AiService implements OnModuleInit {
   
   // Variabili caricate dal file .env
   private readonly aiApiUrl = process.env.AI_API_URL;
-  private readonly hfToken = process.env.HF_TOKEN;
 
   constructor(private readonly httpService: HttpService) {
     // Log di controllo all'avvio del servizio
@@ -18,7 +17,6 @@ export class AiService implements OnModuleInit {
   onModuleInit() {
     this.logger.log('--- ON_MODULE_INIT AiService ---');
     this.logger.log(`URL configurato: ${this.aiApiUrl ? this.aiApiUrl : 'NON TROVATO ❌'}`);
-    this.logger.log(`Token configurato: ${this.hfToken ? 'PRESENTE ✅' : 'MANCANTE ❌'}`);
   }
 
   /**
@@ -39,11 +37,10 @@ export class AiService implements OnModuleInit {
       this.logger.log(`[DEBUG] Chiamata POST a: ${url}`);
       this.logger.log(`[DEBUG] Payload inviato: ${JSON.stringify(payload)}`);
 
-      // 3. Chiamata HTTP con headers (incluso il token HF)
+      // 3. Chiamata HTTP
       const response = await firstValueFrom(
         this.httpService.post(url, payload, {
           headers: {
-            'Authorization': `Bearer ${this.hfToken}`,
             'Content-Type': 'application/json',
           },
         })
@@ -91,7 +88,6 @@ export class AiService implements OnModuleInit {
       const response = await firstValueFrom(
         this.httpService.post(url, payload, {
           headers: {
-            'Authorization': `Bearer ${this.hfToken}`,
             'Content-Type': 'application/json',
           },
         })
